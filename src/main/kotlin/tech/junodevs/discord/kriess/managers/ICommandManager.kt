@@ -35,4 +35,6 @@ interface ICommandManager<T: GuildSettingsProvider> : EventListener {
 
     fun getCommand(label: String): Command<T>?
 
+    fun getCommands(): List<Command<T>>
+
 }

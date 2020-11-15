@@ -3,7 +3,9 @@ package tech.junodevs.discord.kriess.command
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import tech.junodevs.discord.kriess.impl.managers.CommandManager
 import tech.junodevs.discord.kriess.managers.GuildSettingsManager
+import tech.junodevs.discord.kriess.managers.ICommandManager
 import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 
 class CommandEvent<T: GuildSettingsProvider>(
@@ -11,7 +13,8 @@ class CommandEvent<T: GuildSettingsProvider>(
     val command: Command<T>,
     val isOwner: Boolean,
     val args: List<String>,
-    val settingsManager: GuildSettingsManager<T>
+    val settingsManager: GuildSettingsManager<T>,
+    val commandManager: ICommandManager<T>,
 ) {
 
     val author: User

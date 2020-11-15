@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.backend.wasm.lower.excludeDeclarationsFromCodegen
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -10,7 +11,7 @@ plugins {
 }
 
 group = "tech.junodevs.discord"
-version = "0.1.0"
+version = "0.1.1"
 
 repositories {
     mavenCentral()
@@ -39,10 +40,6 @@ val sourcesJar by tasks.registering(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveClassifier.set("")
-}
-
 publishing {
     repositories {
         maven {
@@ -51,9 +48,11 @@ publishing {
         }
     }
     publications {
-        register("maven", MavenPublication::class) {
-            project.shadow.component(this)
-            artifact(sourcesJar.get())
+        publications {
+            create<MavenPublication>("maven") {
+                from(components["java"])
+                artifact(tasks["sourcesJar"])
+            }
         }
     }
 }

@@ -43,8 +43,8 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
 
             val command = getCommand(commandLabel)
             if (command != null && command.ownerOnly && !owners.contains(event.author.id)) return@thenAccept
-            if (command != null && command.preHandle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager)))
-                command.handle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager))
+            if (command != null && command.preHandle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)))
+                command.handle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this))
         }
     }
 
@@ -79,6 +79,10 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
 
     override fun isOwner(id: String): Boolean {
         return owners.contains(id)
+    }
+
+    override fun getCommands(): List<Command<T>> {
+        return commands
     }
 
 }

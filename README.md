@@ -17,7 +17,7 @@ A reusable command handler for JDA, written in Kotlin
 <dependency>
     <groupId>tech.junodevs.discord</groupId>
     <artifactId>kriess</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -26,12 +26,12 @@ A reusable command handler for JDA, written in Kotlin
 repositories {
     maven {
         name = "brettb-repo"
-        url = "https://repo.brettb.xyz"
+        url = uri("https://repo.brettb.xyz")
     }
 }
 
 dependencies {
-    implementation("tech.junodevs.discord:kriess:0.1.0")
+    implementation("tech.junodevs.discord:kriess:0.2.0")
 }
 ```
 
