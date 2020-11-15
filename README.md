@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("tech.junodevs.discord:kriess0.6.0")
+    implementation("tech.junodevs.discord:kriess:0.1.0")
 }
 ```
 
