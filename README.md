@@ -17,7 +17,7 @@ A reusable command handler for JDA, written in Kotlin
 <dependency>
     <groupId>tech.junodevs.discord</groupId>
     <artifactId>kriess</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    implementation("tech.junodevs.discord:kriess:0.2.0")
+    implementation("tech.junodevs.discord:kriess:0.3.0")
 }
 ```
 

@@ -12,7 +12,7 @@ abstract class Command<T: GuildSettingsProvider>(
     val ownerOnly: Boolean = false,
 ) {
 
-    fun preHandle(event: CommandEvent<T>): Boolean {
+    open fun preHandle(event: CommandEvent<T>): Boolean {
         return true
     }
 
