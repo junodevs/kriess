@@ -36,7 +36,7 @@ dependencies {
 ```
 
 ## Usage
-*Documentation is in Progress*
+While documentation writing is in progress, why don't you check out the [examplebot](https://github.com/junodevs/kriess-examplebot)?
 
 ## Licensing
 
