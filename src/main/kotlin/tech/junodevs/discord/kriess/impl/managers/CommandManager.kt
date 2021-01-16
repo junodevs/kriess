@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2020-2021 Juno Developers
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package tech.junodevs.discord.kriess.impl.managers
 
 import net.dv8tion.jda.api.events.ReadyEvent
@@ -8,7 +32,7 @@ import tech.junodevs.discord.kriess.managers.GuildSettingsManager
 import tech.junodevs.discord.kriess.managers.ICommandManager
 import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 
-class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String) : ICommandManager<T> {
+class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String) : ICommandManager {
 
     init {
         guildSettingsManager.start()
@@ -18,7 +42,7 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
         })
     }
 
-    val commands: ArrayList<Command<T>> = arrayListOf()
+    val commands: ArrayList<Command> = arrayListOf()
     val owners: ArrayList<String> = arrayListOf()
 
     var mentionPrefixes: Array<String> = arrayOf()
@@ -39,7 +63,7 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
 
             val split = remainder.split(" ")
             val commandLabel = split[0].toLowerCase()
-            val args = split.slice(1 until split.size)
+            val args = split.slice(1 until split.size).joinToString(" ")
 
             val command = getCommand(commandLabel)
             if (command != null && command.ownerOnly && !owners.contains(event.author.id)) return@thenAccept
@@ -57,15 +81,15 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
         }
     }
 
-    override fun addCommand(command: Command<T>) {
+    override fun addCommand(command: Command) {
         if (!commands.contains(command)) { commands.add(command) }
     }
 
-    override fun removeCommand(command: Command<T>) {
+    override fun removeCommand(command: Command) {
         commands.remove(command)
     }
 
-    override fun getCommand(label: String): Command<T>? {
+    override fun getCommand(label: String): Command? {
         return commands.find { it.name == label || it.aliases.contains(label) }
     }
 
@@ -81,7 +105,7 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
         return owners.contains(id)
     }
 
-    override fun getCommands(): List<Command<T>> {
+    override fun getCommands(): List<Command> {
         return commands
     }
 

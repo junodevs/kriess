@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "tech.junodevs.discord"
-version = "0.3.0"
+version = "0.4.0"
 
 repositories {
     mavenCentral()
@@ -30,6 +30,8 @@ dependencies {
     // Internal Utilities
     implementation("org.yaml:snakeyaml:1.27")
     implementation("com.google.guava:guava:28.0-jre")
+    implementation("me.xdrop:fuzzywuzzy:1.3.1")
+
 }
 
 val compileKotlin: KotlinCompile by tasks

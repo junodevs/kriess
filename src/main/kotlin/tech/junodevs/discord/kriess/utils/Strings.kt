@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-package tech.junodevs.discord.kriess.providers
 
-interface GuildSettingsProvider {
 
-    val realPrefix: String
+package tech.junodevs.discord.kriess.utils
 
-    fun toMap(): Map<String, Any?>
-
-}
+private val spaceRegex = Regex("""\s+""")
+fun String.removeExtraSpaces(): String = this.replace(spaceRegex, " ").trim()
+fun String.splitSpaces(limit: Int = 0): List<String> = this.split(spaceRegex, limit)
