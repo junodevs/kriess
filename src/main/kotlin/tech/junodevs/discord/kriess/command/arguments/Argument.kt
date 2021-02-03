@@ -61,7 +61,7 @@ class Argument private constructor(
         private val digitRegex = Regex("""\d{1,16}""")
         private val idRegex = Regex("""\d{17,19}""")
         private val flagRegex = Regex("""!(\S+)""")
-        private val wordRegex = Regex("""^"(.*)"|^(\w+)""")
+        private val wordRegex = Regex("""^"(.*)"|^(\S+)""")
 
         /**
          * Compiles the provided [tokens] into a read-only list of arguments.

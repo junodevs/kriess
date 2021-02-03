@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "tech.junodevs.discord"
-version = "0.5.5"
+version = "0.5.6"
 
 repositories {
     mavenCentral()
