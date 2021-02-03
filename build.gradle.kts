@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "tech.junodevs.discord"
-version = "0.4.0"
+version = "0.5.5"
 
 repositories {
     mavenCentral()
@@ -50,11 +50,9 @@ publishing {
         }
     }
     publications {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                artifact(tasks["sourcesJar"])
-            }
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifact(tasks["sourcesJar"])
         }
     }
 }

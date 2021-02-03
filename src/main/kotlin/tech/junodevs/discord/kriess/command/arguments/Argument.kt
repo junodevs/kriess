@@ -61,6 +61,7 @@ class Argument private constructor(
         private val digitRegex = Regex("""\d{1,16}""")
         private val idRegex = Regex("""\d{17,19}""")
         private val flagRegex = Regex("""!(\S+)""")
+        private val wordRegex = Regex("""^"(.*)"|^(\w+)""")
 
         /**
          * Compiles the provided [tokens] into a read-only list of arguments.
@@ -319,11 +320,10 @@ class Argument private constructor(
                     ArgumentType.WORD -> {
                         val words = LinkedList<String>()
                         do {
-                            // Parse the first word in the remaining text
-                            val splitFirst = remainingText.splitSpaces().first()
-                            remainingText = remainingText.substring(splitFirst.length).removeExtraSpaces()
-                            words.add(splitFirst)
-                        } while (arg.isArray)
+                            val match = wordRegex.find(remainingText) ?: break
+                            words.add(if (match.groupValues[1].isEmpty()) match.groupValues[2] else match.groupValues[1])
+                            remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
+                        } while (wordRegex.matches(remainingText) && arg.isArray)
                         words
                     }
 
