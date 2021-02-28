@@ -22,45 +22,17 @@
  * SOFTWARE.
  */
 
-package tech.junodevs.discord.kriess.managers
+package tech.junodevs.discord.kriess.menus
 
-import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.hooks.EventListener
-import tech.junodevs.discord.kriess.command.Command
-import tech.junodevs.discord.kriess.events.EventWaiter
+object MenuManager {
 
-interface ICommandManager: EventListener {
+    private val menus: MutableMap<Long, Menu> = mutableMapOf()
+    val currentMenus: Collection<Menu>
+        get() = menus.values.filter { !it.isClosed() }
 
-    val defaultPrefix: String
-
-    val eventWaiter: EventWaiter
-
-    override fun onEvent(event: GenericEvent) {
-        eventWaiter.onEvent(event)
-        when (event) {
-            is GuildMessageReceivedEvent -> onGuildMessage(event)
-            is ReadyEvent -> onReadyEvent(event)
-        }
+    operator fun get(message: Long) = menus[message]
+    operator fun set(message: Long, menu: Menu) = menus.put(message, menu)
+    fun remove(message: Long) {
+        menus.remove(message)
     }
-
-    fun onGuildMessage(event: GuildMessageReceivedEvent)
-
-    fun onReadyEvent(event: ReadyEvent)
-
-    fun addOwner(id: String)
-
-    fun removeOwner(id: String)
-
-    fun isOwner(id: String): Boolean
-
-    fun addCommand(command: Command)
-
-    fun removeCommand(command: Command)
-
-    fun getCommand(label: String): Command?
-
-    fun getCommands(): List<Command>
-
 }

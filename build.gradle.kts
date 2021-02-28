@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.backend.wasm.lower.excludeDeclarationsFromCodegen
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,7 +10,7 @@ plugins {
 }
 
 group = "tech.junodevs.discord"
-version = "0.5.6"
+version = "0.7.0"
 
 repositories {
     mavenCentral()
@@ -22,16 +21,17 @@ dependencies {
     listOf("stdlib-jdk8", "reflect").forEach { implementation(kotlin(it)) }
 
     // JDA
-    api("net.dv8tion:JDA:4.2.0_207")
+    api("net.dv8tion:JDA:4.2.0_229")
 
     // Logger
-    implementation("ch.qos.logback:logback-classic:1.2.3")
+    api("ch.qos.logback:logback-classic:1.2.3")
+
+    // Utilities
+    api("org.yaml:snakeyaml:1.27")
+    api("me.xdrop:fuzzywuzzy:1.3.1")
 
     // Internal Utilities
-    implementation("org.yaml:snakeyaml:1.27")
     implementation("com.google.guava:guava:28.0-jre")
-    implementation("me.xdrop:fuzzywuzzy:1.3.1")
-
 }
 
 val compileKotlin: KotlinCompile by tasks

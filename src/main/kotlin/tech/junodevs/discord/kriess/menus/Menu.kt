@@ -22,45 +22,27 @@
  * SOFTWARE.
  */
 
-package tech.junodevs.discord.kriess.managers
+package tech.junodevs.discord.kriess.menus
 
-import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.hooks.EventListener
-import tech.junodevs.discord.kriess.command.Command
-import tech.junodevs.discord.kriess.events.EventWaiter
+import net.dv8tion.jda.api.entities.MessageReaction
+import net.dv8tion.jda.api.entities.User
 
-interface ICommandManager: EventListener {
+interface Menu {
 
-    val defaultPrefix: String
+    fun begin()
 
-    val eventWaiter: EventWaiter
+    fun end()
 
-    override fun onEvent(event: GenericEvent) {
-        eventWaiter.onEvent(event)
-        when (event) {
-            is GuildMessageReceivedEvent -> onGuildMessage(event)
-            is ReadyEvent -> onReadyEvent(event)
-        }
-    }
+    fun render()
 
-    fun onGuildMessage(event: GuildMessageReceivedEvent)
+    fun handleReaction(reaction: MessageReaction)
 
-    fun onReadyEvent(event: ReadyEvent)
+    fun bumpTimeout()
 
-    fun addOwner(id: String)
+    fun getUser(): User
 
-    fun removeOwner(id: String)
+    fun getMessageId(): Long
 
-    fun isOwner(id: String): Boolean
-
-    fun addCommand(command: Command)
-
-    fun removeCommand(command: Command)
-
-    fun getCommand(label: String): Command?
-
-    fun getCommands(): List<Command>
+    fun isClosed(): Boolean
 
 }

@@ -29,10 +29,9 @@ import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.junodevs.discord.kriess.command.arguments.Argument
 import tech.junodevs.discord.kriess.command.arguments.ArgumentResult
-import tech.junodevs.discord.kriess.impl.managers.CommandManager
+import tech.junodevs.discord.kriess.events.EventWaiter
 import tech.junodevs.discord.kriess.managers.GuildSettingsManager
 import tech.junodevs.discord.kriess.managers.ICommandManager
-import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 
 class CommandEvent(
     val event: GuildMessageReceivedEvent,
@@ -61,6 +60,8 @@ class CommandEvent(
         get() = jda.selfUser
     val textChannel: TextChannel
         get() = event.channel
+    val eventWaiter: EventWaiter
+        get() = commandManager.eventWaiter
 
     val arguments: ArgumentResult by lazy { Argument.parse(this, command.arguments) }
 

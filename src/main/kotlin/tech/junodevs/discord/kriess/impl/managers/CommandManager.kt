@@ -28,9 +28,11 @@ import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
+import tech.junodevs.discord.kriess.events.EventWaiter
 import tech.junodevs.discord.kriess.managers.GuildSettingsManager
 import tech.junodevs.discord.kriess.managers.ICommandManager
 import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
+import tech.junodevs.discord.kriess.utils.splitSpaces
 
 class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String) : ICommandManager {
 
@@ -44,6 +46,7 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
 
     val commands: ArrayList<Command> = arrayListOf()
     val owners: ArrayList<String> = arrayListOf()
+    override val eventWaiter: EventWaiter = EventWaiter()
 
     var mentionPrefixes: Array<String> = arrayOf()
 
@@ -61,14 +64,15 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
                 else -> return@thenAccept
             }.trim()
 
-            val split = remainder.split(" ")
-            val commandLabel = split[0].toLowerCase()
-            val args = split.slice(1 until split.size).joinToString(" ")
+            val parts = remainder.splitSpaces(2)
+            val commandLabel = parts[0].toLowerCase()
 
-            val command = getCommand(commandLabel)
-            if (command != null && command.ownerOnly && !owners.contains(event.author.id)) return@thenAccept
-            if (command != null && command.preHandle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)))
-                command.handle(CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this))
+            val command = getCommand(commandLabel) ?: return@thenAccept
+            val args = if (parts.size == 1) "" else parts[1]
+            val cEvent =
+                CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)
+            if (command.preHandle(cEvent))
+                command.handle(cEvent)
         }
     }
 
