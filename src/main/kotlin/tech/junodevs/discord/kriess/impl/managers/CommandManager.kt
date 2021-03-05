@@ -24,6 +24,9 @@
 
 package tech.junodevs.discord.kriess.impl.managers
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.junodevs.discord.kriess.command.Command
@@ -33,8 +36,11 @@ import tech.junodevs.discord.kriess.managers.GuildSettingsManager
 import tech.junodevs.discord.kriess.managers.ICommandManager
 import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 import tech.junodevs.discord.kriess.utils.splitSpaces
+import kotlin.coroutines.EmptyCoroutineContext
 
 class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String) : ICommandManager {
+
+    private val scope = CoroutineScope(EmptyCoroutineContext)
 
     init {
         guildSettingsManager.start()
@@ -71,8 +77,11 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
             val args = if (parts.size == 1) "" else parts[1]
             val cEvent =
                 CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)
-            if (command.preHandle(cEvent))
-                command.handle(cEvent)
+
+            scope.launch {
+                if (command.preHandle(cEvent))
+                    command.handle(cEvent)
+            }
         }
     }
 

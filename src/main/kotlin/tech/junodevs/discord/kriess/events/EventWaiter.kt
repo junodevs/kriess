@@ -69,8 +69,8 @@ class EventWaiter {
      * When an event expires, [expired] will be executed instead if not null.
      */
     fun <T : GenericEvent> waitForEvent(
-        eventType: KClass<T>, timeout: Long = 0, unit: TimeUnit? = null,
-        expired: (() -> Unit)? = null, test: (T) -> Boolean, action: (T) -> Unit
+            eventType: KClass<T>, timeout: Long = 0, unit: TimeUnit? = null,
+            expired: (() -> Unit)? = null, test: (T) -> Boolean, action: (T) -> Unit
     ) {
         val waitingEvent = WaitingEvent(test, action)
         val eventSet = waitingEvents.computeIfAbsent(eventType) { mutableSetOf() }
@@ -87,8 +87,8 @@ class EventWaiter {
     }
 
     private class WaitingEvent<T : GenericEvent>(
-        private val test: (T) -> Boolean,
-        private val consumer: (T) -> Unit
+            private val test: (T) -> Boolean,
+            private val consumer: (T) -> Unit
     ) {
 
         @Suppress("UNCHECKED_CAST")
