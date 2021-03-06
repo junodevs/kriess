@@ -23,19 +23,20 @@ import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.ReconnectedEvent
 import net.dv8tion.jda.api.events.ShutdownEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import tech.junodevs.discord.kriess.services.CountingThreadFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
 
-class EventWaiter {
+// Must be registered as a listener in order to be used!!
+class EventWaiter : EventListener {
 
     private val executor = Executors.newSingleThreadScheduledExecutor(CountingThreadFactory("waiter"))
     private val waitingEvents = mutableMapOf<KClass<*>, MutableSet<WaitingEvent<*>>>()
 
-    @Suppress("unused")
-    fun onEvent(event: GenericEvent) {
+    override fun onEvent(event: GenericEvent) {
 
         if (event is ReconnectedEvent) {
             // A ReconnectedEvent signifies that JDA entity objects were rebuilt
