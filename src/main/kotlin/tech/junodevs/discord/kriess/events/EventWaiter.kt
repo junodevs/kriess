@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.events.ReconnectedEvent
 import net.dv8tion.jda.api.events.ShutdownEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import tech.junodevs.discord.kriess.services.CountingThreadFactory
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass

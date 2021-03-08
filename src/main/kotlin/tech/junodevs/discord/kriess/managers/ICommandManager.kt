@@ -38,7 +38,6 @@ interface ICommandManager: EventListener {
     val eventWaiter: EventWaiter
 
     override fun onEvent(event: GenericEvent) {
-        eventWaiter.onEvent(event)
         when (event) {
             is GuildMessageReceivedEvent -> onGuildMessage(event)
             is ReadyEvent -> onReadyEvent(event)
