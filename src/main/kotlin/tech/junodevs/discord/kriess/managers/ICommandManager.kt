@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import tech.junodevs.discord.kriess.command.Command
+import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.events.EventWaiter
 
 interface ICommandManager: EventListener {
@@ -43,6 +44,8 @@ interface ICommandManager: EventListener {
             is ReadyEvent -> onReadyEvent(event)
         }
     }
+
+    fun onCommandError(event: CommandEvent, throwable: Throwable)
 
     fun onGuildMessage(event: GuildMessageReceivedEvent)
 

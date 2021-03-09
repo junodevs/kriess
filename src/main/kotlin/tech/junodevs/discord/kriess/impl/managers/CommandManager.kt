@@ -26,7 +26,6 @@ package tech.junodevs.discord.kriess.impl.managers
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.junodevs.discord.kriess.command.Command
@@ -38,7 +37,7 @@ import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 import tech.junodevs.discord.kriess.utils.splitSpaces
 import kotlin.coroutines.EmptyCoroutineContext
 
-class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String) : ICommandManager {
+class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String, private val errorHandler: ((CommandEvent, Throwable) -> Unit)? = null) : ICommandManager {
 
     private val scope = CoroutineScope(EmptyCoroutineContext)
 
@@ -79,17 +78,25 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
                 CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)
 
             scope.launch {
-                if (command.preHandle(cEvent))
-                    command.handle(cEvent)
+                try {
+                    if (command.preHandle(cEvent))
+                        command.handle(cEvent)
+                } catch (t: Throwable) {
+                    onCommandError(cEvent, t)
+                }
             }
         }
+    }
+
+    override fun onCommandError(event: CommandEvent, throwable: Throwable) {
+        errorHandler?.invoke(event, throwable)
     }
 
     override fun onReadyEvent(event: ReadyEvent) {
         if (mentionPrefixes.isEmpty()) {
             mentionPrefixes = arrayOf(
-                "<@${event.jda.selfUser.id}>",
-                "<@!${event.jda.selfUser.id}>"
+                    "<@${event.jda.selfUser.id}>",
+                    "<@!${event.jda.selfUser.id}>"
             )
         }
     }
