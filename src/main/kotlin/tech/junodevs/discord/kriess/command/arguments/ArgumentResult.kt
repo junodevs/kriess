@@ -55,27 +55,64 @@ class ArgumentResult(val results: Map<String, Any>) {
 
     /* JDA Objects */
 
+    /**
+     * Retrieve a [TextChannel] with [name] from the [ArgumentResult]
+     */
     fun channel(name: String = "channel"): TextChannel? = get(name)
+
+    /**
+     * Retrieve an [Emote] with [name] from the [ArgumentResult]
+     */
     fun emote(name: String = "emote"): Emote? = get(name)
+
+    /**
+     * Retrieve a [Role] with [name] from the [ArgumentResult]
+     */
     fun role(name: String = "role"): Role? = get(name)
+
+    /**
+     * Retrieve an [User] with [name] from the [ArgumentResult]
+     */
     fun user(name: String = "user"): User? = get(name)
+
+    /**
+     * Retrieve a [VoiceChannel] with [name] from the [ArgumentResult]
+     */
     fun voice(name: String = "voice"): VoiceChannel? = get(name)
 
     /* Kriess Objects */
 
+    /**
+     * Retrieve a [Command] with [name] from the [ArgumentResult]
+     */
     fun command(name: String = "command"): Command? = get(name)
 
     /* Native Objects */
 
+    /**
+     * Retrieve a [Long] with [name] from the [ArgumentResult]
+     */
     fun digit(name: String = "digit"): Long? = get(name)
+
+    /**
+     * Retrieve a hungry [String] with [name] from the [ArgumentResult]
+     */
     fun text(name: String = "text"): String? = get(name)
+
+    /**
+     * Retrieve a word [String] with [name] from the [ArgumentResult]
+     */
     fun word(name: String = "word"): String? = get(name)
 
+    /**
+     * Retrieve a [Duration] with [name] from the [ArgumentResult]
+     */
     @ExperimentalTime
     fun duration(name: String = "duration"): Duration? =
         get<Long>(name)?.toDuration(TimeUnit.SECONDS)
 
     /**
+     * Retrieve a [flag][Boolean]
      * Flags do not have a default name.
      */
     fun flag(name: String): Boolean? = get(name)

@@ -26,4 +26,17 @@ package tech.junodevs.discord.kriess.command
 
 private var nextPriority = 0
 
-class CommandCategory(val name: String, val priority: Int = nextPriority++)
+/**
+ * A Category that a Command can be assigned to
+ */
+class CommandCategory(
+    /**
+     * The [name] of this [CommandCategory]
+     */
+    val name: String,
+
+    /**
+     * The sorting priority of this [CommandCategory]
+     */
+    val priority: Int = nextPriority++
+)

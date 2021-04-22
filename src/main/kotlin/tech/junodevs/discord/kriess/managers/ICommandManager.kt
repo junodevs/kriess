@@ -32,12 +32,24 @@ import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.events.EventWaiter
 
+/**
+ * The CommandManager interface, implemented by all CommandManagers.
+ */
 interface ICommandManager: EventListener {
 
+    /**
+     * The [defaultPrefix] for the bot
+     */
     val defaultPrefix: String
 
+    /**
+     * The associated [EventWaiter]
+     */
     val eventWaiter: EventWaiter
 
+    /**
+     * Called by JDA
+     */
     override fun onEvent(event: GenericEvent) {
         when (event) {
             is GuildMessageReceivedEvent -> onGuildMessage(event)
@@ -45,24 +57,60 @@ interface ICommandManager: EventListener {
         }
     }
 
+    /**
+     * A way to hook into messages before they make it to a command
+     * Return false in order to prevent a message from being parsed
+     */
+    fun messageHook(event: GuildMessageReceivedEvent): Boolean
+
+    /**
+     * The function to run when a [Command] errors
+     */
     fun onCommandError(event: CommandEvent, throwable: Throwable)
 
+    /**
+     * Called when a [GenericEvent] in [ICommandManager.onEvent] is a [GuildMessageReceivedEvent]
+     */
     fun onGuildMessage(event: GuildMessageReceivedEvent)
 
+    /**
+     * Called when a [GenericEvent] in [ICommandManager.onEvent] is a [ReadyEvent]
+     */
     fun onReadyEvent(event: ReadyEvent)
 
+    /**
+     * Register a owner in this [ICommandManager]
+     */
     fun addOwner(id: String)
 
+    /**
+     * Remove a owner from this [ICommandManager]
+     */
     fun removeOwner(id: String)
 
+    /**
+     * Check if a given [id] is an owner in this [ICommandManager]
+     */
     fun isOwner(id: String): Boolean
 
+    /**
+     * Add a [command] to this [ICommandManager]
+     */
     fun addCommand(command: Command)
 
+    /**
+     * Remove a [command] from this [ICommandManager]
+     */
     fun removeCommand(command: Command)
 
+    /**
+     * Get a [Command] with [label] from this [ICommandManager]
+     */
     fun getCommand(label: String): Command?
 
+    /**
+     * Get all of the [Command]s registered with this [ICommandManager]
+     */
     fun getCommands(): List<Command>
 
 }

@@ -27,22 +27,49 @@ package tech.junodevs.discord.kriess.menus
 import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.User
 
+/**
+ * A simple Menu interface, gets the ball rolling
+ */
 interface Menu {
 
+    /**
+     * Begin the menu
+     */
     fun begin()
 
+    /**
+     * End the menu
+     */
     fun end()
 
+    /**
+     * Update/Render the menu
+     */
     fun render()
 
+    /**
+     * Handle a [MessageReaction] from the [MenuListener]
+     */
     fun handleReaction(reaction: MessageReaction)
 
+    /**
+     * Bump the timeout, prevent from closing
+     */
     fun bumpTimeout()
 
+    /**
+     * Get the [User] of the menu
+     */
     fun getUser(): User
 
+    /**
+     * Get the message ID of the menu
+     */
     fun getMessageId(): Long
 
+    /**
+     * Get if the menu is closed or not
+     */
     fun isClosed(): Boolean
 
 }

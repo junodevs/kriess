@@ -24,10 +24,20 @@
 
 package tech.junodevs.discord.kriess.providers
 
+/**
+ * The most basic GuildSettings that needs to be provided
+ */
 interface GuildSettingsProvider {
 
+    /**
+     * The prefix that should be used in the guild represented by this object
+     */
     val realPrefix: String
 
+    /**
+     * A map representation of all settings, used by the standard [tech.junodevs.discord.kriess.impl.managers.GuildSettingsManager]
+     * to store as YAML
+     */
     fun toMap(): Map<String, Any?>
 
 }

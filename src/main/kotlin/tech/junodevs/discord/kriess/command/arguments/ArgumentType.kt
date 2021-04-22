@@ -19,6 +19,9 @@
 
 package tech.junodevs.discord.kriess.command.arguments
 
+/**
+ * Different types of arguments to be used during parsing
+ */
 enum class ArgumentType {
 
     /**

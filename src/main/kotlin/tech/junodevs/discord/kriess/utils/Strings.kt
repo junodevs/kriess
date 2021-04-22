@@ -27,5 +27,13 @@
 package tech.junodevs.discord.kriess.utils
 
 private val spaceRegex = Regex("""\s+""")
+
+/**
+ * Remove all of the extra spaces from a string
+ */
 fun String.removeExtraSpaces(): String = this.replace(spaceRegex, " ").trim()
+
+/**
+ * Split a string with a maximum of [limit] times
+ */
 fun String.splitSpaces(limit: Int = 0): List<String> = this.split(spaceRegex, limit)

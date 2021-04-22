@@ -3,6 +3,9 @@ package tech.junodevs.discord.kriess.services
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * A thread factory
+ */
 class CountingThreadFactory(private val identifier: String) : ThreadFactory {
 
     private val poolId: Long

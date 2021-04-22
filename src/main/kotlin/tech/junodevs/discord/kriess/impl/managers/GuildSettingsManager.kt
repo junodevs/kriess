@@ -32,14 +32,20 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.concurrent.CompletableFuture
 
+/**
+ * An implementation of [GuildSettingsManager], using YAML as a storage medium
+ */
 abstract class GuildSettingsManager<T : GuildSettingsProvider> : GuildSettingsManager<T> {
 
-    val yaml = Yaml()
+    private val yaml = Yaml()
 
     private val file = File("guild-settings.yml")
 
     private var guildSettings: MutableMap<Long, T> = mutableMapOf()
 
+    /**
+     * Start up the settings manager
+     */
     @Suppress("UNCHECKED_CAST")
     override fun start() {
         if (!file.exists()) {
@@ -68,6 +74,9 @@ abstract class GuildSettingsManager<T : GuildSettingsProvider> : GuildSettingsMa
             .forEach { guildSettings[it.key] = it.value }
     }
 
+    /**
+     * Save the settings to disk
+     */
     override fun save() {
         file.delete()
         file.writeText(
@@ -77,10 +86,16 @@ abstract class GuildSettingsManager<T : GuildSettingsProvider> : GuildSettingsMa
         )
     }
 
+    /**
+     * Shut down the settings manager
+     */
     override fun shutdown() {
         save()
     }
 
+    /**
+     * Retrieve the settings for a [Guild]
+     */
     override fun getSettingsFor(guild: Guild): CompletableFuture<T> {
         val future = CompletableFuture<T>()
 
@@ -89,15 +104,24 @@ abstract class GuildSettingsManager<T : GuildSettingsProvider> : GuildSettingsMa
         return future
     }
 
-     override fun editSettings(guild: Guild, action: T.() -> Unit) {
+    /**
+     * Edit the settings of a [Guild]
+     */
+    override fun editSettings(guild: Guild, action: T.() -> Unit) {
         getSettingsFor(guild).thenAccept {
             action.invoke(it)
             save()
         }
     }
 
+    /**
+     * Create an instance of [T] when the settings are already on-file
+     */
     abstract fun createInstance(guildId: Long, properties: Map<String, Any?>): T
 
+    /**
+     * Create a fresh instance of [T]; used when the settings are not on-file
+     */
     abstract fun createAbsentInstance(guildId: Long): T
 
 }

@@ -29,12 +29,30 @@ import net.dv8tion.jda.api.entities.*
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
+/**
+ * A simple paginator menu that goes through pages of fields
+ */
 class PaginatorMenu(
-    private val channel: TextChannel,
-    private val user: User,
-    private val title: String,
-    private val options: PaginationOptions,
-    private val pages: List<List<MessageEmbed.Field>>
+        /**
+         * The [TextChannel] the paginator should be active in
+         */
+        private val channel: TextChannel,
+        /**
+         * The [User] that the paginator is to be used by
+         */
+        private val user: User,
+        /**
+         * The [title] of the menu
+         */
+        private val title: String,
+        /**
+         * The [PaginationOptions] for the menu
+         */
+        private val options: PaginationOptions,
+        /**
+         * The [pages] of the menu, with each sub-list being a page
+         */
+        private val pages: List<List<MessageEmbed.Field>>
 ) : Menu {
     private var scheduledFuture: ScheduledFuture<*>? = null
     private var isClosed = false
@@ -42,14 +60,23 @@ class PaginatorMenu(
     private var messageId: Long = -1
     private var currentPage = 0
 
+    /**
+     * Get the [User] of the menu
+     */
     override fun getUser(): User {
         return user
     }
 
+    /**
+     * Get the message ID of the menu
+     */
     override fun getMessageId(): Long {
         return messageId
     }
 
+    /**
+     * Begin the menu
+     */
     override fun begin() {
         isClosed = false
 
@@ -58,6 +85,9 @@ class PaginatorMenu(
         bumpTimeout()
     }
 
+    /**
+     * End the menu
+     */
     override fun end() {
         isClosed = true
 
@@ -66,6 +96,9 @@ class PaginatorMenu(
         MenuManager.remove(messageId)
     }
 
+    /**
+     * Update/Render the menu
+     */
     override fun render() {
         val embed = EmbedBuilder().run {
             setTitle(title)
@@ -100,6 +133,9 @@ class PaginatorMenu(
         }
     }
 
+    /**
+     * Handle a [MessageReaction] from the [MenuListener]
+     */
     override fun handleReaction(reaction: MessageReaction) {
         if (!isClosed) {
             if (reaction.reactionEmote.isEmoji) {
@@ -156,6 +192,9 @@ class PaginatorMenu(
         }
     }
 
+    /**
+     * Bump the timeout, prevent from closing
+     */
     override fun bumpTimeout() {
         scheduledFuture?.cancel(true)
 
@@ -164,28 +203,91 @@ class PaginatorMenu(
         }
 
         scheduledFuture = message?.editMessage(":x: *This menu has expired* :x:")?.override(true)
-            ?.queueAfter(options.timeoutMs, TimeUnit.MILLISECONDS) {
-                end()
-            }
+                ?.queueAfter(options.timeoutMs, TimeUnit.MILLISECONDS) {
+                    end()
+                }
     }
 
+    /**
+     * Get if the menu is closed or not
+     */
     override fun isClosed(): Boolean {
         return isClosed
     }
 
 }
 
+/**
+ * A representation of options for a [PaginatorMenu]
+ */
 class PaginationOptions(
-    val timeoutMs: Long,
-    val nextEmote: Emote? = null,
-    val previousEmote: Emote? = null,
-    val startEmote: Emote? = null,
-    val endEmote: Emote? = null,
-    val closeEmote: Emote? = null,
-    val nextEmoji: String = "\u25b6\ufe0f",
-    val previousEmoji: String = "\u25c0\ufe0f",
-    val startEmoji: String = "\u23ee\ufe0f",
-    val endEmoji: String = "\u23ed\ufe0f",
-    val closeEmoji: String = "\u274c",
-    val embedColor: Int = 0x000000,
+        /**
+         * How many milliseconds should it take to time out the menu?
+         */
+        val timeoutMs: Long,
+
+        /**
+         * [nextEmote] is used when given, instead of [nextEmoji]
+         * The [Emote] that goes to the next page
+         */
+        val nextEmote: Emote? = null,
+
+        /**
+         * [previousEmote] is used when given, instead of [previousEmoji]
+         * The [Emote] that goes to the previous page
+         */
+        val previousEmote: Emote? = null,
+
+        /**
+         * [startEmote] is used when given, instead of [startEmoji]
+         * The [Emote] that goes to the first page
+         */
+        val startEmote: Emote? = null,
+
+        /**
+         * [endEmote] is used when given, instead of [endEmoji]
+         * The [Emote] that goes to the last page
+         */
+        val endEmote: Emote? = null,
+
+        /**
+         * [closeEmote] is used when given, instead of [closeEmoji]
+         * The [Emote] that closes the menu
+         */
+        val closeEmote: Emote? = null,
+
+        /**
+         * [nextEmote] is used when given, instead of [nextEmoji]
+         * The Emoji that goes to the next page
+         */
+        val nextEmoji: String = "\u25b6\ufe0f",
+
+        /**
+         * [previousEmote] is used when given, instead of [previousEmoji]
+         * The Emoji that goes to the previous page
+         */
+        val previousEmoji: String = "\u25c0\ufe0f",
+
+        /**
+         * [startEmote] is used when given, instead of [startEmoji]
+         * The Emoji that goes to the first page
+         */
+        val startEmoji: String = "\u23ee\ufe0f",
+
+        /**
+         * [endEmote] is used when given, instead of [endEmoji]
+         * The Emoji that goes to the last page
+         */
+        val endEmoji: String = "\u23ed\ufe0f",
+
+        /**
+         * [closeEmote] is used when given, instead of [closeEmoji]
+         * The Emoji that closes the menu
+         */
+        val closeEmoji: String = "\u274c",
+
+        /**
+         * The color of the [MessageEmbed]
+         */
+        val embedColor: Int = 0x000000,
 )

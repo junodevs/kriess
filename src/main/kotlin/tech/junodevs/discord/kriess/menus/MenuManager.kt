@@ -24,14 +24,32 @@
 
 package tech.junodevs.discord.kriess.menus
 
+/**
+ * Keep track of all of the open menus
+ */
 object MenuManager {
 
     private val menus: MutableMap<Long, Menu> = mutableMapOf()
-    val currentMenus: Collection<Menu>
+
+    /**
+     * A list of the open [Menu]s
+     */
+    val currentMenus: List<Menu>
         get() = menus.values.filter { !it.isClosed() }
 
+    /**
+     * Get a [Menu] given the [message] id
+     */
     operator fun get(message: Long) = menus[message]
+
+    /**
+     * Set a [Menu] to a [message] id
+     */
     operator fun set(message: Long, menu: Menu) = menus.put(message, menu)
+
+    /**
+     * Remove a [Menu] by [message] id
+     */
     fun remove(message: Long) {
         menus.remove(message)
     }

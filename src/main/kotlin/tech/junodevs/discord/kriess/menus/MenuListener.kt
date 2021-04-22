@@ -29,8 +29,16 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 import net.dv8tion.jda.api.hooks.EventListener
 
+/**
+ * Listens for reactions on menus, passing them along and removing the reaction if the user that reacted was not the one
+ * using the menu.
+ */
 object MenuListener : EventListener {
 
+    /**
+     * Called by JDA when any event occurs
+     * These events are filtered for just the reaction events
+     */
     override fun onEvent(event: GenericEvent) {
         if (event is GuildMessageReactionAddEvent) {
             if (event.user.isBot) return
@@ -81,11 +89,7 @@ object MenuListener : EventListener {
                     menu.bumpTimeout()
                     return
                 }
-                if (event.reactionEmote.isEmote) {
-                    msg.removeReaction(event.reactionEmote.emote, user).queue()
-                } else {
-                    msg.removeReaction(event.reactionEmote.emoji, user).queue()
-                }
+                // On an Add we remove the reaction, but here we do nothing because the reaction is already gone
             }
         }
     }

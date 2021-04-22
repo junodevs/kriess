@@ -28,18 +28,38 @@ import net.dv8tion.jda.api.entities.Guild
 import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 import java.util.concurrent.CompletableFuture
 
+/**
+ * The GuildSettingsManager interface, implemented by all GuildSettingsManagers
+ */
 interface GuildSettingsManager<T : GuildSettingsProvider> {
 
+    /**
+     * Retrieve the settings for a [Guild]
+     */
     operator fun get(guild: Guild) = getSettingsFor(guild)
 
+    /**
+     * Retrieve the settings for a [Guild]
+     */
     fun getSettingsFor(guild: Guild): CompletableFuture<T>
 
+    /**
+     * Edit the settings of a [Guild], with [action] being applied to the found settings object
+     */
     fun editSettings(guild: Guild, action: T.() -> Unit)
 
+    /**
+     * Initialize the manager
+     */
     fun start() {}
 
+    /**
+     * Save all of the data in the manager
+     */
     fun save() {}
 
+    /**
+     * Shut down the manager
+     */
     fun shutdown() {}
-
 }

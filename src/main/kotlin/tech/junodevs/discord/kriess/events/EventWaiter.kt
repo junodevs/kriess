@@ -37,6 +37,9 @@ class EventWaiter : EventListener {
     private val executor = Executors.newSingleThreadScheduledExecutor(CountingThreadFactory("waiter"))
     private val waitingEvents = mutableMapOf<KClass<*>, MutableSet<WaitingEvent<*>>>()
 
+    /**
+     * Gets called by JDA
+     */
     override fun onEvent(event: GenericEvent) {
 
         if (event is ReconnectedEvent) {

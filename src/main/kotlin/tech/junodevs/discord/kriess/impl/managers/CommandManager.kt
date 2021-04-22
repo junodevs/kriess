@@ -37,7 +37,28 @@ import tech.junodevs.discord.kriess.providers.GuildSettingsProvider
 import tech.junodevs.discord.kriess.utils.splitSpaces
 import kotlin.coroutines.EmptyCoroutineContext
 
-class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildSettingsManager<T>, override val defaultPrefix: String, private val errorHandler: ((CommandEvent, Throwable) -> Unit)? = null) : ICommandManager {
+/**
+ * A bog standard implementation of [ICommandManager]
+ */
+class CommandManager<T : GuildSettingsProvider>(
+    /**
+     * The [GuildSettingsManager] assigned to this [CommandManager]
+     */
+    val guildSettingsManager: GuildSettingsManager<T>,
+    /**
+     * The [defaultPrefix] to be used when a guild doesn't have one
+     */
+    override val defaultPrefix: String,
+    /**
+     * The [preCommandHook] - great for auto-mod events. Is called before any message parsing occurs
+     * Return false to halt further parsing of the event
+     */
+    private val preCommandHook: ((GuildMessageReceivedEvent) -> Boolean) = { true },
+    /**
+     * The [errorHandler] for this [CommandManager]
+     */
+    private val errorHandler: ((CommandEvent, Throwable) -> Unit)? = null
+) : ICommandManager {
 
     private val scope = CoroutineScope(EmptyCoroutineContext)
 
@@ -55,7 +76,14 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
 
     var mentionPrefixes: Array<String> = arrayOf()
 
+    override fun messageHook(event: GuildMessageReceivedEvent): Boolean {
+        return preCommandHook(event)
+    }
+
     override fun onGuildMessage(event: GuildMessageReceivedEvent) {
+        if (!messageHook(event))
+            return
+
         guildSettingsManager.getSettingsFor(event.guild).thenAccept { guildSettings ->
             if (event.author.isBot) return@thenAccept
 
@@ -73,14 +101,19 @@ class CommandManager<T : GuildSettingsProvider>(val guildSettingsManager: GuildS
             val commandLabel = parts[0].toLowerCase()
 
             val command = getCommand(commandLabel) ?: return@thenAccept
-            val args = if (parts.size == 1) "" else parts[1]
+            var args = if (parts.size == 1) "" else parts[1]
+
+            val maybeSubcommand = if (args.isNotEmpty()) {
+                command.findChild(args).also { args = it.second }.first ?: command
+            } else command
+
             val cEvent =
-                CommandEvent(event, command, owners.contains(event.author.id), args, guildSettingsManager, this)
+                CommandEvent(event, maybeSubcommand, owners.contains(event.author.id), args, guildSettingsManager, this)
 
             scope.launch {
                 try {
-                    if (command.preHandle(cEvent))
-                        command.handle(cEvent)
+                    if (maybeSubcommand.preHandle(cEvent))
+                        maybeSubcommand.handle(cEvent)
                 } catch (t: Throwable) {
                     onCommandError(cEvent, t)
                 }

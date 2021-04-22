@@ -25,6 +25,7 @@
 package tech.junodevs.discord.kriess.command
 
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import tech.junodevs.discord.kriess.command.arguments.Argument
@@ -33,47 +34,135 @@ import tech.junodevs.discord.kriess.events.EventWaiter
 import tech.junodevs.discord.kriess.managers.GuildSettingsManager
 import tech.junodevs.discord.kriess.managers.ICommandManager
 
+/**
+ * A representation of a [Command] being triggered
+ */
 class CommandEvent(
-    val event: GuildMessageReceivedEvent,
-    val command: Command,
-    val isOwner: Boolean,
-    val args: String,
-    val settingsManager: GuildSettingsManager<*>,
-    val commandManager: ICommandManager,
+        /**
+         * The [GuildMessageReceivedEvent] that triggered this [CommandEvent]
+         */
+        val event: GuildMessageReceivedEvent,
+
+        /**
+         * The [Command] that was chosen by the [ICommandManager] to handle this event
+         */
+        val command: Command,
+
+        /**
+         * Is the [author] registered as an owner in the [commandManager] that handled this event
+         */
+        val isOwner: Boolean,
+
+        /**
+         * Everything from the [Message.getContentRaw] except the command slug and prefix
+         */
+        val args: String,
+
+        /**
+         * The [GuildSettingsManager] assigned to the [commandManager] that handled this event
+         */
+        val settingsManager: GuildSettingsManager<*>,
+
+        /**
+         * The [ICommandManager] that handled this event
+         */
+        val commandManager: ICommandManager,
 ) {
 
+    /**
+     * The [User] that sent the event
+     */
     val author: User
         get() = event.author
+
+    /**
+     * The [MessageChannel] the event was sent in
+     */
     val channel: MessageChannel
         get() = event.channel
+
+    /**
+     * The [Guild] the event was sent in
+     */
     val guild: Guild
         get() = event.guild
+
+    /**
+     * The [JDA] instance that it was triggered on
+     */
     val jda: JDA
         get() = event.jda
+
+    /**
+     * The [Member] that sent the event
+     */
     val member: Member
         get() = event.member!!
+
+    /**
+     * The [Message] that triggered the event
+     */
     val message: Message
         get() = event.message
+
+    /**
+     * The [Member] representing the bot in the [guild]
+     */
     val selfMember: Member
         get() = guild.selfMember
+
+    /**
+     * The currently logged in account
+     */
     val selfUser: SelfUser
         get() = jda.selfUser
+
+    /**
+     * The [TextChannel] the [message] was sent in
+     */
     val textChannel: TextChannel
         get() = event.channel
+
+    /**
+     * The [EventWaiter] of the [ICommandManager] that handled this event
+     */
     val eventWaiter: EventWaiter
         get() = commandManager.eventWaiter
 
-    val arguments: ArgumentResult by lazy { Argument.parse(this, command.arguments) }
+    /**
+     * The [ArgumentResult] that was parsed from the [CommandEvent] and [Command.arguments]
+     */
+    val arguments: ArgumentResult by lazy { Argument.parse(this, command.arguments, args) }
 
-    fun reply(message: String, success: ((Message) -> Unit)? = null, failure: ((Throwable) -> Unit)? = null) {
+    /**
+     * Sends the [message] to the [channel] the event was triggered in.
+     * Calls [success] and [failure] respectively
+     */
+    fun reply(message: Message, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
         event.channel.sendMessage(message).queue(success, failure)
     }
 
-    fun reply(embed: MessageEmbed, success: ((Message) -> Unit)? = null, failure: ((Throwable) -> Unit)? = null) {
-        event.channel.sendMessage(embed).queue(success, failure)
+    /**
+     * Sends the [message] to the [channel] the event was triggered in.
+     * Calls [success] and [failure] respectively
+     */
+    fun reply(message: String, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
+        reply(MessageBuilder(message).build(), success, failure)
     }
 
-    fun replyError(message: String, success: ((Message) -> Unit)? = null, failure: ((Throwable) -> Unit)? = null) {
+    /**
+     * Sends the [message] to the [channel] the event was triggered in.
+     * Calls [success] and [failure] respectively
+     */
+    fun reply(embed: MessageEmbed, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
+        reply(MessageBuilder(embed).build(), success, failure)
+    }
+
+    /**
+     * Sends the [message] prefixed with ":x:" to the [channel] the event was triggered in.
+     * Calls [success] and [failure] respectively
+     */
+    fun replyError(message: String, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
         reply(":x: $message", success, failure)
     }
 

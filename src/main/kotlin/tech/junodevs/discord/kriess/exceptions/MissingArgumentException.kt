@@ -22,6 +22,9 @@ package tech.junodevs.discord.kriess.exceptions
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.command.arguments.Argument
 
+/**
+ * An exception thrown when the parsing of an [Argument] is required, but not found
+ */
 class MissingArgumentException(val event: CommandEvent, val argument: Argument) : RuntimeException(
     "Required argument ${argument.name} is missing in text ${event.args}"
 )

@@ -6,7 +6,8 @@ plugins {
     `java-library`
     `maven-publish`
 
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.30"
+    id("org.jetbrains.dokka") version "1.4.30"
     id("com.github.gmazzo.buildconfig") version "2.0.2"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
@@ -27,6 +28,11 @@ buildConfig {
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") {
+        content {
+            includeGroup("org.jetbrains.kotlinx")
+        }
+    }
 }
 
 dependencies {
@@ -46,6 +52,8 @@ dependencies {
 
     // Internal Utilities
     implementation("com.google.guava:guava:28.0-jre")
+
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
 }
 
 val compileKotlin: KotlinCompile by tasks

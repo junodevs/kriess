@@ -4,18 +4,42 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
-// Set an initial of 0 for it to run when the service is begun,
-// otherwise defaults to a delay that is the same as the period
-abstract class Service(private val period: Long, private val initial: Long = period) {
+/**
+ * Represents a service that runs every [period] seconds.
+ */
+abstract class Service(
+    /**
+     * The [period] (number of seconds) between each execution
+     */
+    val period: Long,
 
+    /**
+     * The [initial] delay before the service is executed for the first time
+     */
+    val initial: Long = period
+) {
+
+    /**
+     * Is the task running right now?
+     */
     val isRunning: Boolean
         get() = !(task?.isDone ?: true)
 
     private var task: ScheduledFuture<*>? = null
 
+    /**
+     * The task that should be executed every [period] seconds
+     */
     protected abstract fun execute()
 
+    /**
+     * Start the task
+     */
     open fun start() = beginTask()
+
+    /**
+     * Stop the task
+     */
     open fun shutdown() {
         task?.cancel(false)
     }
