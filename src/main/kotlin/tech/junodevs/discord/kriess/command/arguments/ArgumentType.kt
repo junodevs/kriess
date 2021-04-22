@@ -78,6 +78,11 @@ enum class ArgumentType {
     VOICE,
 
     /**
+     * Searches for categories in guilds. Resolves [net.dv8tion.jda.api.entities.Category] objects.
+     */
+    CATEGORY,
+
+    /**
      * Parses a single word at the beginning of the remaining text. Resolves as a [String].
      */
     WORD,

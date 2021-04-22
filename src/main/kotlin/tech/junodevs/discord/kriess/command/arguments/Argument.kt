@@ -20,9 +20,7 @@
 package tech.junodevs.discord.kriess.command.arguments
 
 import me.xdrop.fuzzywuzzy.FuzzySearch
-import net.dv8tion.jda.api.entities.IMentionable
-import net.dv8tion.jda.api.entities.Role
-import net.dv8tion.jda.api.entities.VoiceChannel
+import net.dv8tion.jda.api.entities.*
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.exceptions.MissingArgumentException
@@ -297,24 +295,34 @@ class Argument private constructor(
                         commands
                     }
 
-                    ArgumentType.VOICE -> {
-                        // Voice channels are also special, they cannot be
-                        // mentioned easily and must be looked up by name
-                        val voiceChannels = LinkedList<VoiceChannel>()
-                        val channelList = event.guild.voiceChannels
+                    ArgumentType.VOICE, ArgumentType.CATEGORY -> {
+                        // Voice channels and categories are also special, they cannot be
+                        // mentioned easily and must be looked up by name or ID
+                        val matches = LinkedList<GuildChannel>()
+                        val channelList = when (arg.type) {
+                            ArgumentType.CATEGORY -> event.guild.categories
+                            ArgumentType.VOICE -> event.guild.voiceChannels
+                            else -> throw AssertionError()
+                        }
+
                         // First check any channel ids, this is more accurate than names
                         for (match in idRegex.findAll(remainingText)) {
                             // Keep looking if we don't find a channel with this id
-                            val channel = event.guild.getVoiceChannelById(match.value) ?: continue
+                            val obj = when (arg.type) {
+                                ArgumentType.CATEGORY -> event.guild.getCategoryById(match.value) ?: continue
+                                ArgumentType.VOICE -> event.guild.getVoiceChannelById(match.value) ?: continue
+                                else -> throw AssertionError()
+                            }
                             remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
-                            voiceChannels.add(channel)
+                            matches.add(obj)
                             if (!arg.isArray) break
                         }
+
                         // Search the channels if we didn't find anything
-                        if (voiceChannels.isEmpty() || arg.isArray) {
-                            remainingText = fuzzySearch(channelList, voiceChannels, remainingText) { it.name }
+                        if (matches.isEmpty() || arg.isArray) {
+                            remainingText = fuzzySearch(channelList, matches, remainingText) { it.name }
                         }
-                        voiceChannels
+                        matches
                     }
 
                     ArgumentType.WORD -> {

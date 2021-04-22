@@ -43,14 +43,14 @@ class ArgumentResult(val results: Map<String, Any>) {
      * If the wrong type is provided a casting exception will be thrown.
      * If the argument was not parsed null will be returned.
      */
-    inline fun <reified T> get(name: String): T? = if (name in results) results[name] as T else null
+    inline fun <reified T> get(name: String): T? = if (name.toLowerCase() in results) results[name.toLowerCase()] as T else null
 
     /**
      * Returns the array of type [T] with the name [name].
      * Note that despite the name, a [List] is returned.
      */
     inline fun <reified T> array(name: String): List<T>? = if (name in results) {
-        (results[name] as List<*>).filterIsInstance<T>()
+        (results[name.toLowerCase()] as List<*>).filterIsInstance<T>()
     } else null
 
     /* JDA Objects */
@@ -79,6 +79,11 @@ class ArgumentResult(val results: Map<String, Any>) {
      * Retrieve a [VoiceChannel] with [name] from the [ArgumentResult]
      */
     fun voice(name: String = "voice"): VoiceChannel? = get(name)
+
+    /**
+     * Retrieve a [Category] with [name] from the [ArgumentResult]
+     */
+    fun category(name: String = "category"): Category? = get(name)
 
     /* Kriess Objects */
 
