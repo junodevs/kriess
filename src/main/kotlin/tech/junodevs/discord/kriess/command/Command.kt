@@ -27,6 +27,7 @@ package tech.junodevs.discord.kriess.command
 import tech.junodevs.discord.kriess.command.arguments.Argument
 import tech.junodevs.discord.kriess.utils.removeExtraSpaces
 import tech.junodevs.discord.kriess.utils.splitSpaces
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
 
 /**
@@ -73,9 +74,9 @@ abstract class Command(
      * The [Command]s that are defined as sub classes of this one
      */
     val children: List<Command> = this::class.nestedClasses.filter {
-        it.isSubclassOf(this::class)
+        it.isSubclassOf(Command::class)
     }.map {
-        (it as Command).also { child -> child.parent = this }
+        (it.createInstance() as Command).also { child -> child.parent = this }
     }.toList()
 
     /**
@@ -99,9 +100,22 @@ abstract class Command(
      * How does one use this [Command]?
      */
     val usage: String by lazy {
-        if (this.arguments.isEmpty()) name else {
-            name + " " + this.arguments.joinToString("") { it.usage }
+        if (this.arguments.isEmpty()) path.replace(":", " ") else {
+            path.replace(":", " ") + " " + this.arguments.joinToString(" ") { it.usage }
         }
+    }
+
+    /**
+     * Where exactly is this [Command] located in the tree?
+     */
+    val path: String by lazy {
+        var currentCommand = this
+        val builder = StringBuilder()
+        do {
+            builder.insert(0, currentCommand.name + ":")
+            currentCommand = currentCommand.parent ?: break
+        } while (true)
+        builder.substring(0, builder.lastIndex)
     }
 
     /**
