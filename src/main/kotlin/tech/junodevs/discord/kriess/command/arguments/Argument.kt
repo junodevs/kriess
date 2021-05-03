@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.*
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.exceptions.MissingArgumentException
+import tech.junodevs.discord.kriess.managers.ICommandManager
 import tech.junodevs.discord.kriess.utils.removeExtraSpaces
 import tech.junodevs.discord.kriess.utils.splitSpaces
 import java.util.*
@@ -139,17 +140,21 @@ class Argument private constructor(
          * Extracts a single argument from the command context.
          */
         @Suppress("UNCHECKED_CAST")
-        fun <T> singleton(event: CommandEvent, args: String, type: ArgumentType): T? {
+        fun <T> singleton(event: CommandEvent, message: Message, type: ArgumentType): T? {
             val argument = Argument("singleton", type, isRequired = false, isArray = false)
-            return parse(event, listOf(argument), args).results["singleton"] as T?
+            return parse(listOf(argument), message, event.commandManager).results["singleton"] as T?
         }
 
         /**
          * Parses the arguments provided by a user into the requested argument types.
          */
-        fun parse(event: CommandEvent, arguments: List<Argument>, args: String): ArgumentResult {
+        fun parse(
+            arguments: List<Argument>,
+            message: Message,
+            commandManager: ICommandManager
+        ): ArgumentResult {
             val parsedValues = mutableMapOf<String, Any>()
-            var remainingText = args
+            var remainingText = message.contentRaw
 
             for (arg in arguments) {
 
@@ -168,9 +173,9 @@ class Argument private constructor(
                         }
                         // Figure out which list is relevant to us
                         val mentioned = when (arg.type) {
-                            ArgumentType.USER -> event.message.mentionedUsers
-                            ArgumentType.CHANNEL -> event.message.mentionedChannels
-                            ArgumentType.EMOTE -> event.message.emotes
+                            ArgumentType.USER -> message.mentionedUsers
+                            ArgumentType.CHANNEL -> message.mentionedChannels
+                            ArgumentType.EMOTE -> message.emotes
                             else -> throw AssertionError()
                         }
                         // Attempt to parse any entity mentions first
@@ -187,7 +192,7 @@ class Argument private constructor(
                             // We need to find all matches to prevent traversing them forever
                             for (match in idRegex.findAll(remainingText)) {
                                 // If no user exists with this id try the next match
-                                val user = event.jda.retrieveUserById(match.value).complete() ?: continue
+                                val user = message.jda.retrieveUserById(match.value).complete() ?: continue
                                 remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
                                 matches.add(user)
                                 if (!arg.isArray) break
@@ -198,7 +203,7 @@ class Argument private constructor(
 
                     ArgumentType.ROLE -> {
                         // Attempt to parse any role mentions first
-                        val mentioned = event.message.mentionedRoles
+                        val mentioned = message.mentionedRoles
                         val roles = LinkedList<Role>()
                         if (mentioned.isNotEmpty()) do {
                             // If there are no more role mentions we can stop looking
@@ -210,17 +215,17 @@ class Argument private constructor(
                             // Try looking for role ids if we didn't find anything
                             for (match in idRegex.findAll(remainingText)) {
                                 // Keep looking if we don't find a role with this id
-                                val role = event.guild.getRoleById(match.value) ?: continue
+                                val role = message.guild.getRoleById(match.value) ?: continue
                                 remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
                                 roles.add(role)
                                 if (!arg.isArray) break
                             }
                         }
                         // Search the roles if we still didn't find anything
-                        if (roles.isEmpty() || arg.isArray) {
+                        if ((roles.isEmpty() || arg.isArray) && message.isFromGuild) {
                             // Roles are special in that they are one of two
                             // discord entities that we allow be looked up by name
-                            remainingText = fuzzySearch(event.guild.roles, roles, remainingText) { it.name }
+                            remainingText = fuzzySearch(message.guild.roles, roles, remainingText) { it.name }
                         }
                         roles
                     }
@@ -287,7 +292,7 @@ class Argument private constructor(
                         // commands, it would be too ambiguous with aliases
                         for (split in remainingText.splitSpaces()) {
                             // If this word isn't a command name, try the next one
-                            val command = event.commandManager.getCommand(split) ?: continue
+                            val command = commandManager.getCommand(split) ?: continue
                             remainingText = remainingText.replaceFirst(split, "").removeExtraSpaces()
                             commands.add(command)
                             if (!arg.isArray) break
@@ -299,28 +304,30 @@ class Argument private constructor(
                         // Voice channels and categories are also special, they cannot be
                         // mentioned easily and must be looked up by name or ID
                         val matches = LinkedList<GuildChannel>()
-                        val channelList = when (arg.type) {
-                            ArgumentType.CATEGORY -> event.guild.categories
-                            ArgumentType.VOICE -> event.guild.voiceChannels
-                            else -> throw AssertionError()
-                        }
-
-                        // First check any channel ids, this is more accurate than names
-                        for (match in idRegex.findAll(remainingText)) {
-                            // Keep looking if we don't find a channel with this id
-                            val obj = when (arg.type) {
-                                ArgumentType.CATEGORY -> event.guild.getCategoryById(match.value) ?: continue
-                                ArgumentType.VOICE -> event.guild.getVoiceChannelById(match.value) ?: continue
+                        if (message.isFromGuild) {
+                            val channelList = when (arg.type) {
+                                ArgumentType.CATEGORY -> message.guild.categories
+                                ArgumentType.VOICE -> message.guild.voiceChannels
                                 else -> throw AssertionError()
                             }
-                            remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
-                            matches.add(obj)
-                            if (!arg.isArray) break
-                        }
 
-                        // Search the channels if we didn't find anything
-                        if (matches.isEmpty() || arg.isArray) {
-                            remainingText = fuzzySearch(channelList, matches, remainingText) { it.name }
+                            // First check any channel ids, this is more accurate than names
+                            for (match in idRegex.findAll(remainingText)) {
+                                // Keep looking if we don't find a channel with this id
+                                val obj = when (arg.type) {
+                                    ArgumentType.CATEGORY -> message.guild.getCategoryById(match.value) ?: continue
+                                    ArgumentType.VOICE -> message.guild.getVoiceChannelById(match.value) ?: continue
+                                    else -> throw AssertionError()
+                                }
+                                remainingText = remainingText.replaceFirst(match.value, "").removeExtraSpaces()
+                                matches.add(obj)
+                                if (!arg.isArray) break
+                            }
+
+                            // Search the channels if we didn't find anything
+                            if (matches.isEmpty() || arg.isArray) {
+                                remainingText = fuzzySearch(channelList, matches, remainingText) { it.name }
+                            }
                         }
                         matches
                     }
@@ -358,7 +365,7 @@ class Argument private constructor(
 
             // Check for any missing arguments
             val missing = arguments.firstOrNull { it.isRequired && it.name !in parsedValues }
-            if (missing != null) throw MissingArgumentException(event, missing)
+            if (missing != null) throw MissingArgumentException(message.contentRaw, missing)
 
             return ArgumentResult(parsedValues)
         }
@@ -384,5 +391,4 @@ class Argument private constructor(
         }
 
     }
-
 }
