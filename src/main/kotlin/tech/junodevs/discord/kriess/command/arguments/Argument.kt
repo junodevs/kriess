@@ -140,9 +140,9 @@ class Argument private constructor(
          * Extracts a single argument from the command context.
          */
         @Suppress("UNCHECKED_CAST")
-        fun <T> singleton(event: CommandEvent, message: Message, type: ArgumentType): T? {
+        fun <T> singleton(event: CommandEvent, message: Message, content: String, type: ArgumentType): T? {
             val argument = Argument("singleton", type, isRequired = false, isArray = false)
-            return parse(listOf(argument), message, event.commandManager).results["singleton"] as T?
+            return parse(listOf(argument), message, content, event.commandManager).results["singleton"] as T?
         }
 
         /**
@@ -151,10 +151,11 @@ class Argument private constructor(
         fun parse(
             arguments: List<Argument>,
             message: Message,
+            content: String,
             commandManager: ICommandManager
         ): ArgumentResult {
             val parsedValues = mutableMapOf<String, Any>()
-            var remainingText = message.contentRaw
+            var remainingText = content
 
             for (arg in arguments) {
 

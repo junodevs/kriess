@@ -132,7 +132,7 @@ class CommandEvent(
     /**
      * The [ArgumentResult] that was parsed from the [CommandEvent] and [Command.arguments]
      */
-    val arguments: ArgumentResult by lazy { Argument.parse(command.arguments, message, commandManager) }
+    val arguments: ArgumentResult by lazy { Argument.parse(command.arguments, message, args, commandManager) }
 
     /**
      * Sends the [message] to the [channel] the event was triggered in.
