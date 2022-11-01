@@ -98,7 +98,7 @@ class CommandManager<T : GuildSettingsProvider>(
             }.trim()
 
             val parts = remainder.splitSpaces(2)
-            val commandLabel = parts[0].toLowerCase()
+            val commandLabel = parts[0].lowercase()
 
             val command = getCommand(commandLabel) ?: return@thenAccept
             var args = if (parts.size == 1) "" else parts[1]

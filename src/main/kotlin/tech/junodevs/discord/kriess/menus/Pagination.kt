@@ -113,9 +113,9 @@ class PaginatorMenu(
         }
 
         if (message != null) {
-            message!!.editMessage(embed).queue()
+            message!!.editMessageEmbeds(embed).queue()
         } else {
-            message = channel.sendMessage(embed).complete()
+            message = channel.sendMessageEmbeds(embed).complete()
             messageId = message!!.idLong
             addPotentialEmote(options.startEmote, options.startEmoji)
             addPotentialEmote(options.previousEmote, options.previousEmoji)

@@ -122,7 +122,7 @@ class Argument private constructor(
                 }
 
                 // The name must always be lowercase
-                val name = (if (rawName.isEmpty()) type.name else rawName).toLowerCase()
+                val name = (rawName.ifEmpty { type.name }).lowercase()
 
                 // Arguments cannot share names, if there are two
                 // of the same type they must be named differently
