@@ -24,9 +24,11 @@
 
 package tech.junodevs.discord.kriess.menus
 
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent
 import net.dv8tion.jda.api.hooks.EventListener
 
 /**
@@ -40,59 +42,43 @@ object MenuListener : EventListener {
      * These events are filtered for just the reaction events
      */
     override fun onEvent(event: GenericEvent) {
-        if (event is GuildMessageReactionAddEvent) {
-            if (event.user.isBot) return
-
-            val history = try {
-                event.channel.getHistoryAround(event.messageId, 1).complete() ?: return
-            } catch (ex: Exception) {
-                // If we can't get history, ignore it.
-                return
-            }
-
-            val msg = history.getMessageById(event.messageId) ?: return
-            if (msg.author != event.jda.selfUser) return
-
-            val menu = MenuManager[msg.idLong]
-
-            if (menu != null) {
-                if (menu.getUser() == event.user) {
-                    menu.handleReaction(event.reaction)
-                    menu.bumpTimeout()
-                    return
-                }
-                if (event.reactionEmote.isEmote) {
-                    msg.removeReaction(event.reactionEmote.emote, event.user).queue()
-                } else {
-                    msg.removeReaction(event.reactionEmote.emoji, event.user).queue()
+        when (event) {
+            is MessageReactionAddEvent -> {
+                val menuCheck = checkMenu(event)
+                if (menuCheck.first) {
+                    menuCheck.second!!.removeReaction(event.reaction.emoji, event.user!!).queue()
                 }
             }
-        } else if (event is GuildMessageReactionRemoveEvent) {
-            val user = event.user ?: return // we need the user >.>
-            if (user.isBot) return
-
-            val history = try {
-                event.channel.getHistoryAround(event.messageId, 1).complete() ?: return
-            } catch (ex: Exception) {
-                // If we can't get history, ignore it.
-                return
-            }
-
-            val msg = history.getMessageById(event.messageId) ?: return
-            if (msg.author != event.jda.selfUser) return
-
-            val menu = MenuManager[msg.idLong]
-
-            if (menu != null) {
-                if (menu.getUser() == event.user) {
-                    menu.handleReaction(event.reaction)
-                    menu.bumpTimeout()
-                    return
-                }
-                // On an Add we remove the reaction, but here we do nothing because the reaction is already gone
+            is MessageReactionRemoveEvent -> {
+                checkMenu(event)
             }
         }
     }
 
+    private fun checkMenu(event: GenericMessageReactionEvent): Pair<Boolean, Message?> {
+        val user = event.retrieveUser().complete()
+        if (user.isBot) return Pair(false, null)
+
+        val history = try {
+            event.channel.getHistoryAround(event.messageId, 1).complete() ?: return Pair(false, null)
+        } catch (ex: Exception) {
+            // If we can't get history, ignore it.
+            return Pair(false, null)
+        }
+
+        val msg = history.getMessageById(event.messageId) ?: return Pair(false, null)
+        if (msg.author != event.jda.selfUser) return Pair(false, null)
+
+        val menu = MenuManager[msg.idLong]
+
+        if (menu != null) {
+            if (menu.getUser() == event.user) {
+                menu.handleReaction(event.reaction)
+                menu.bumpTimeout()
+            }
+            return Pair(false, msg)
+        }
+        return Pair(false, null)
+    }
 
 }

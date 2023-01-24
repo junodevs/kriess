@@ -25,7 +25,13 @@
 package tech.junodevs.discord.kriess.menus
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.MessageReaction
+import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -125,11 +131,11 @@ class PaginatorMenu(
         }
     }
 
-    private fun addPotentialEmote(emote: Emote?, default: String) {
+    private fun addPotentialEmote(emote: Emoji?, default: String) {
         if (emote != null) {
             message?.addReaction(emote)?.queue()
         } else {
-            message?.addReaction(default)?.queue()
+            message?.addReaction(Emoji.fromUnicode(default))
         }
     }
 
@@ -138,8 +144,8 @@ class PaginatorMenu(
      */
     override fun handleReaction(reaction: MessageReaction) {
         if (!isClosed) {
-            if (reaction.reactionEmote.isEmoji) {
-                when (reaction.reactionEmote.emoji) {
+            if (reaction.emoji.type == Emoji.Type.UNICODE) {
+                when (reaction.emoji.asUnicode().formatted) {
                     options.startEmoji -> startPage()
                     options.previousEmoji -> previousPage()
                     options.closeEmoji -> closePage()
@@ -147,8 +153,8 @@ class PaginatorMenu(
                     options.endEmoji -> endPage()
                 }
             }
-            if (reaction.reactionEmote.isEmote) {
-                when (reaction.reactionEmote.emote) {
+            if (reaction.emoji.type == Emoji.Type.CUSTOM) {
+                when (reaction.emoji.asCustom()) {
                     options.startEmote -> startPage()
                     options.previousEmote -> previousPage()
                     options.closeEmote -> closePage()
@@ -175,7 +181,7 @@ class PaginatorMenu(
 
     private fun closePage() {
         end()
-        message?.editMessage("*Menu Closed*")?.override(true)?.queue()
+        message?.editMessage("*Menu Closed*")?.setReplace(true)?.queue()
     }
 
     private fun nextPage() {
@@ -202,7 +208,7 @@ class PaginatorMenu(
             return
         }
 
-        scheduledFuture = message?.editMessage(":x: *This menu has expired* :x:")?.override(true)
+        scheduledFuture = message?.editMessage(":x: *This menu has expired* :x:")?.setReplace(true)
                 ?.queueAfter(options.timeoutMs, TimeUnit.MILLISECONDS) {
                     end()
                 }
@@ -228,33 +234,33 @@ class PaginationOptions(
 
         /**
          * [nextEmote] is used when given, instead of [nextEmoji]
-         * The [Emote] that goes to the next page
+         * The [CustomEmoji] that goes to the next page
          */
-        val nextEmote: Emote? = null,
+        val nextEmote: CustomEmoji? = null,
 
         /**
          * [previousEmote] is used when given, instead of [previousEmoji]
-         * The [Emote] that goes to the previous page
+         * The [CustomEmoji] that goes to the previous page
          */
-        val previousEmote: Emote? = null,
+        val previousEmote: CustomEmoji? = null,
 
         /**
          * [startEmote] is used when given, instead of [startEmoji]
-         * The [Emote] that goes to the first page
+         * The [CustomEmoji] that goes to the first page
          */
-        val startEmote: Emote? = null,
+        val startEmote: CustomEmoji? = null,
 
         /**
          * [endEmote] is used when given, instead of [endEmoji]
-         * The [Emote] that goes to the last page
+         * The [CustomEmoji] that goes to the last page
          */
-        val endEmote: Emote? = null,
+        val endEmote: CustomEmoji? = null,
 
         /**
          * [closeEmote] is used when given, instead of [closeEmoji]
-         * The [Emote] that closes the menu
+         * The [CustomEmoji] that closes the menu
          */
-        val closeEmote: Emote? = null,
+        val closeEmote: CustomEmoji? = null,
 
         /**
          * [nextEmote] is used when given, instead of [nextEmoji]

@@ -25,9 +25,13 @@
 package tech.junodevs.discord.kriess.command
 
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.*
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import tech.junodevs.discord.kriess.command.arguments.Argument
 import tech.junodevs.discord.kriess.command.arguments.ArgumentResult
 import tech.junodevs.discord.kriess.events.EventWaiter
@@ -39,9 +43,9 @@ import tech.junodevs.discord.kriess.managers.ICommandManager
  */
 class CommandEvent(
         /**
-         * The [GuildMessageReceivedEvent] that triggered this [CommandEvent]
+         * The [MessageReceivedEvent] that triggered this [CommandEvent]
          */
-        val event: GuildMessageReceivedEvent,
+        val event: MessageReceivedEvent,
 
         /**
          * The [Command] that was chosen by the [ICommandManager] to handle this event
@@ -120,8 +124,8 @@ class CommandEvent(
     /**
      * The [TextChannel] the [message] was sent in
      */
-    val textChannel: TextChannel
-        get() = event.channel
+    val textChannel: GuildMessageChannel
+        get() = event.guildChannel
 
     /**
      * The [EventWaiter] of the [ICommandManager] that handled this event
@@ -138,7 +142,7 @@ class CommandEvent(
      * Sends the [message] to the [channel] the event was triggered in.
      * Calls [success] and [failure] respectively
      */
-    fun reply(message: Message, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
+    fun reply(message: MessageCreateData, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
         event.channel.sendMessage(message).queue(success, failure)
     }
 
@@ -147,7 +151,7 @@ class CommandEvent(
      * Calls [success] and [failure] respectively
      */
     fun reply(message: String, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
-        reply(MessageBuilder(message).build(), success, failure)
+        reply(MessageCreateBuilder().setContent(message).build(), success, failure)
     }
 
     /**
@@ -155,7 +159,7 @@ class CommandEvent(
      * Calls [success] and [failure] respectively
      */
     fun reply(embed: MessageEmbed, success: ((Message) -> Unit)? = {}, failure: ((Throwable) -> Unit)? = {}) {
-        reply(MessageBuilder(embed).build(), success, failure)
+        reply(MessageCreateBuilder().setEmbeds(embed).build(), success, failure)
     }
 
     /**

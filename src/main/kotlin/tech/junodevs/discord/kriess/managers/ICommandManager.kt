@@ -25,8 +25,8 @@
 package tech.junodevs.discord.kriess.managers
 
 import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
@@ -52,7 +52,7 @@ interface ICommandManager: EventListener {
      */
     override fun onEvent(event: GenericEvent) {
         when (event) {
-            is GuildMessageReceivedEvent -> onGuildMessage(event)
+            is MessageReceivedEvent -> onMessage(event)
             is ReadyEvent -> onReadyEvent(event)
         }
     }
@@ -61,7 +61,7 @@ interface ICommandManager: EventListener {
      * A way to hook into messages before they make it to a command
      * Return false in order to prevent a message from being parsed
      */
-    fun messageHook(event: GuildMessageReceivedEvent): Boolean
+    fun messageHook(event: MessageReceivedEvent): Boolean
 
     /**
      * The function to run when a [Command] errors
@@ -69,9 +69,14 @@ interface ICommandManager: EventListener {
     fun onCommandError(event: CommandEvent, throwable: Throwable)
 
     /**
-     * Called when a [GenericEvent] in [ICommandManager.onEvent] is a [GuildMessageReceivedEvent]
+     * Should be called when a [MessageReceivedEvent] in [ICommandManager.onMessage] is received from a Guild
      */
-    fun onGuildMessage(event: GuildMessageReceivedEvent)
+    fun onGuildMessage(event: MessageReceivedEvent)
+
+    /**
+     * Called when a [GenericEvent] in [ICommandManager.onEvent] is a [MessageReceivedEvent]
+     */
+    fun onMessage(event: MessageReceivedEvent)
 
     /**
      * Called when a [GenericEvent] in [ICommandManager.onEvent] is a [ReadyEvent]

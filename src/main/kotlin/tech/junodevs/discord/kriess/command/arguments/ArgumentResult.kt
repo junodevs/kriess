@@ -19,6 +19,10 @@
 package tech.junodevs.discord.kriess.command.arguments
 
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.channel.concrete.Category
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import tech.junodevs.discord.kriess.command.Command
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -60,9 +64,9 @@ class ArgumentResult(val results: Map<String, Any>) {
     fun channel(name: String = "channel"): TextChannel? = get(name)
 
     /**
-     * Retrieve an [Emote] with [name] from the [ArgumentResult]
+     * Retrieve an [Emoji] with [name] from the [ArgumentResult]
      */
-    fun emote(name: String = "emote"): Emote? = get(name)
+    fun emote(name: String = "emote"): Emoji? = get(name)
 
     /**
      * Retrieve a [Role] with [name] from the [ArgumentResult]

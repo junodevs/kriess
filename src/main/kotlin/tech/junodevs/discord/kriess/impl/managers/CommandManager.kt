@@ -26,8 +26,8 @@ package tech.junodevs.discord.kriess.impl.managers
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.events.ReadyEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.session.ReadyEvent
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.events.EventWaiter
@@ -53,7 +53,7 @@ class CommandManager<T : GuildSettingsProvider>(
      * The [preCommandHook] - great for auto-mod events. Is called before any message parsing occurs
      * Return false to halt further parsing of the event
      */
-    private val preCommandHook: ((GuildMessageReceivedEvent) -> Boolean) = { true },
+    private val preCommandHook: ((MessageReceivedEvent) -> Boolean) = { true },
     /**
      * The [errorHandler] for this [CommandManager]
      */
@@ -76,11 +76,18 @@ class CommandManager<T : GuildSettingsProvider>(
 
     var mentionPrefixes: Array<String> = arrayOf()
 
-    override fun messageHook(event: GuildMessageReceivedEvent): Boolean {
+    override fun messageHook(event: MessageReceivedEvent): Boolean {
         return preCommandHook(event)
     }
 
-    override fun onGuildMessage(event: GuildMessageReceivedEvent) {
+    override fun onMessage(event: MessageReceivedEvent) {
+        if (!event.isFromGuild)
+            return
+
+        onGuildMessage(event)
+    }
+
+    override fun onGuildMessage(event: MessageReceivedEvent) {
         if (!messageHook(event))
             return
 

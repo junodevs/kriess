@@ -21,6 +21,7 @@ package tech.junodevs.discord.kriess.command.arguments
 
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import tech.junodevs.discord.kriess.command.Command
 import tech.junodevs.discord.kriess.command.CommandEvent
 import tech.junodevs.discord.kriess.exceptions.MissingArgumentException
@@ -174,9 +175,9 @@ class Argument private constructor(
                         }
                         // Figure out which list is relevant to us
                         val mentioned = when (arg.type) {
-                            ArgumentType.USER -> message.mentionedUsers
-                            ArgumentType.CHANNEL -> message.mentionedChannels
-                            ArgumentType.EMOTE -> message.emotes
+                            ArgumentType.USER -> message.mentions.users
+                            ArgumentType.CHANNEL -> message.mentions.channels
+                            ArgumentType.EMOTE -> message.mentions.customEmojis
                             else -> throw AssertionError()
                         }
                         // Attempt to parse any entity mentions first
@@ -204,7 +205,7 @@ class Argument private constructor(
 
                     ArgumentType.ROLE -> {
                         // Attempt to parse any role mentions first
-                        val mentioned = message.mentionedRoles
+                        val mentioned = message.mentions.roles
                         val roles = LinkedList<Role>()
                         if (mentioned.isNotEmpty()) do {
                             // If there are no more role mentions we can stop looking

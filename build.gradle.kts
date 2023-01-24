@@ -32,10 +32,6 @@ repositories {
             includeGroup("org.jetbrains.kotlinx")
         }
     }
-
-    maven("https://m2.dv8tion.net/releases") {
-        name = "m2-dv8tion"
-    }
 }
 
 dependencies {
@@ -44,7 +40,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // JDA
-    api("net.dv8tion:JDA:4.4.0_350")
+    api("net.dv8tion:JDA:5.0.0-beta.3")
 
     // Logger
     api("ch.qos.logback:logback-classic:1.4.4")

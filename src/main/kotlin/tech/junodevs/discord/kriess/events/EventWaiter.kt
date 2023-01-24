@@ -21,11 +21,10 @@ package tech.junodevs.discord.kriess.events
 
 import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.events.ReconnectedEvent
-import net.dv8tion.jda.api.events.ShutdownEvent
+import net.dv8tion.jda.api.events.session.SessionRecreateEvent
+import net.dv8tion.jda.api.events.session.ShutdownEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import tech.junodevs.discord.kriess.services.CountingThreadFactory
-import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -42,7 +41,7 @@ class EventWaiter : EventListener {
      */
     override fun onEvent(event: GenericEvent) {
 
-        if (event is ReconnectedEvent) {
+        if (event is SessionRecreateEvent) {
             // A ReconnectedEvent signifies that JDA entity objects were rebuilt
             // Clearing the waiting events removes all references to the old objects
             waitingEvents.clear()
