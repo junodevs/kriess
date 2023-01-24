@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -123,19 +124,19 @@ class PaginatorMenu(
         } else {
             message = channel.sendMessageEmbeds(embed).complete()
             messageId = message!!.idLong
-            addPotentialEmote(options.startEmote, options.startEmoji)
-            addPotentialEmote(options.previousEmote, options.previousEmoji)
-            addPotentialEmote(options.closeEmote, options.closeEmoji)
-            addPotentialEmote(options.nextEmote, options.nextEmoji)
-            addPotentialEmote(options.endEmote, options.endEmoji)
+            addPotentialEmote(options.startEmoji, options.startUnicode)
+            addPotentialEmote(options.previousEmoji, options.previousUnicode)
+            addPotentialEmote(options.closeEmoji, options.closeUnicode)
+            addPotentialEmote(options.nextEmoji, options.nextUnicode)
+            addPotentialEmote(options.endEmoji, options.endUnicode)
         }
     }
 
-    private fun addPotentialEmote(emote: Emoji?, default: String) {
+    private fun addPotentialEmote(emote: Emoji?, default: UnicodeEmoji) {
         if (emote != null) {
             message?.addReaction(emote)?.queue()
         } else {
-            message?.addReaction(Emoji.fromUnicode(default))
+            message?.addReaction(default)
         }
     }
 
@@ -145,21 +146,21 @@ class PaginatorMenu(
     override fun handleReaction(reaction: MessageReaction) {
         if (!isClosed) {
             if (reaction.emoji.type == Emoji.Type.UNICODE) {
-                when (reaction.emoji.asUnicode().formatted) {
+                when (reaction.emoji.asUnicode()) {
+                    options.startUnicode -> startPage()
+                    options.previousUnicode -> previousPage()
+                    options.closeUnicode -> closePage()
+                    options.nextUnicode -> nextPage()
+                    options.endUnicode -> endPage()
+                }
+            }
+            if (reaction.emoji.type == Emoji.Type.CUSTOM) {
+                when (reaction.emoji.asCustom()) {
                     options.startEmoji -> startPage()
                     options.previousEmoji -> previousPage()
                     options.closeEmoji -> closePage()
                     options.nextEmoji -> nextPage()
                     options.endEmoji -> endPage()
-                }
-            }
-            if (reaction.emoji.type == Emoji.Type.CUSTOM) {
-                when (reaction.emoji.asCustom()) {
-                    options.startEmote -> startPage()
-                    options.previousEmote -> previousPage()
-                    options.closeEmote -> closePage()
-                    options.nextEmote -> nextPage()
-                    options.endEmote -> endPage()
                 }
             }
         }
@@ -227,72 +228,72 @@ class PaginatorMenu(
  * A representation of options for a [PaginatorMenu]
  */
 class PaginationOptions(
-        /**
+    /**
          * How many milliseconds should it take to time out the menu?
          */
         val timeoutMs: Long,
 
-        /**
-         * [nextEmote] is used when given, instead of [nextEmoji]
+    /**
+         * [nextEmoji] is used when given, instead of [nextUnicode]
          * The [CustomEmoji] that goes to the next page
          */
-        val nextEmote: CustomEmoji? = null,
+        val nextEmoji: CustomEmoji? = null,
 
-        /**
-         * [previousEmote] is used when given, instead of [previousEmoji]
+    /**
+         * [previousEmoji] is used when given, instead of [previousUnicode]
          * The [CustomEmoji] that goes to the previous page
          */
-        val previousEmote: CustomEmoji? = null,
+        val previousEmoji: CustomEmoji? = null,
 
-        /**
-         * [startEmote] is used when given, instead of [startEmoji]
+    /**
+         * [startEmoji] is used when given, instead of [startUnicode]
          * The [CustomEmoji] that goes to the first page
          */
-        val startEmote: CustomEmoji? = null,
+        val startEmoji: CustomEmoji? = null,
 
-        /**
-         * [endEmote] is used when given, instead of [endEmoji]
+    /**
+         * [endEmoji] is used when given, instead of [endUnicode]
          * The [CustomEmoji] that goes to the last page
          */
-        val endEmote: CustomEmoji? = null,
+        val endEmoji: CustomEmoji? = null,
 
-        /**
-         * [closeEmote] is used when given, instead of [closeEmoji]
+    /**
+         * [closeEmoji] is used when given, instead of [closeUnicode]
          * The [CustomEmoji] that closes the menu
          */
-        val closeEmote: CustomEmoji? = null,
+        val closeEmoji: CustomEmoji? = null,
 
-        /**
-         * [nextEmote] is used when given, instead of [nextEmoji]
+    /**
+         * [nextEmoji] is used when given, instead of [nextUnicode]
          * The Emoji that goes to the next page
          */
-        val nextEmoji: String = "\u25b6\ufe0f",
+        val nextUnicode: UnicodeEmoji = Emoji.fromUnicode("U+25B6"),
 
-        /**
-         * [previousEmote] is used when given, instead of [previousEmoji]
+    /**
+         * [previousEmoji] is used when given, instead of [previousUnicode]
          * The Emoji that goes to the previous page
          */
-        val previousEmoji: String = "\u25c0\ufe0f",
+        val previousUnicode: UnicodeEmoji = Emoji.fromUnicode("U+25C0"),
 
-        /**
-         * [startEmote] is used when given, instead of [startEmoji]
+    /**
+         * [startEmoji] is used when given, instead of [startUnicode]
          * The Emoji that goes to the first page
          */
-        val startEmoji: String = "\u23ee\ufe0f",
+        val startUnicode: UnicodeEmoji = Emoji.fromUnicode("U+23EE"),
 
-        /**
-         * [endEmote] is used when given, instead of [endEmoji]
+    /**
+         * [endEmoji] is used when given, instead of [endUnicode]
          * The Emoji that goes to the last page
          */
-        val endEmoji: String = "\u23ed\ufe0f",
+        val endUnicode: UnicodeEmoji = Emoji.fromUnicode("U+23ED"),
 
-        /**
-         * [closeEmote] is used when given, instead of [closeEmoji]
+    /**
+         * [closeEmoji] is used when given, instead of [closeUnicode]
          * The Emoji that closes the menu
          */
-        val closeEmoji: String = "\u274c",
+        val closeUnicode: UnicodeEmoji = Emoji.fromUnicode("U+274C"),
 
-        /**
+    /**
          * The color of the [MessageEmbed]
          */
         val embedColor: Int = 0x000000,
