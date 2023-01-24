@@ -136,7 +136,7 @@ class PaginatorMenu(
         if (emote != null) {
             message?.addReaction(emote)?.queue()
         } else {
-            message?.addReaction(default)
+            message?.addReaction(default)?.queue()
         }
     }
 
