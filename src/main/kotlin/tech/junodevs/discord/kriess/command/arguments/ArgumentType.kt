@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 Avery Clifton and Logan Devecka
  *      Taken from https://github.com/sandrabot/sandra/
- * Copyright 2021 Juno Developers
+ * Copyright 2021-2023 Juno Developers
  *      Modified to work in the context of Kriess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

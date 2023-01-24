@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2020 Avery Clifton and Logan Devecka
  *      Taken from https://github.com/sandrabot/sandra/
- * Copyright 2021 Juno Developers
+ * Copyright 2021-2023 Juno Developers
  *      Modified to work in the context of Kriess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,17 @@
  */
 package tech.junodevs.discord.kriess.command.arguments
 
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.Category
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import tech.junodevs.discord.kriess.command.Command
-import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.time.*
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.toDuration
 
 /**
  * Wrapper class for casting argument parsing results.
