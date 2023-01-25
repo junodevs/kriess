@@ -30,9 +30,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -40,26 +38,26 @@ import java.util.concurrent.TimeUnit
  * A simple paginator menu that goes through pages of fields
  */
 class PaginatorMenu(
-        /**
-         * The [TextChannel] the paginator should be active in
-         */
-        private val channel: TextChannel,
-        /**
-         * The [User] that the paginator is to be used by
-         */
-        private val user: User,
-        /**
-         * The [title] of the menu
-         */
-        private val title: String,
-        /**
-         * The [PaginationOptions] for the menu
-         */
-        private val options: PaginationOptions,
-        /**
-         * The [pages] of the menu, with each sub-list being a page
-         */
-        private val pages: List<List<MessageEmbed.Field>>
+    /**
+     * The [TextChannel] the paginator should be active in
+     */
+    private val channel: TextChannel,
+    /**
+     * The [User] that the paginator is to be used by
+     */
+    private val user: User,
+    /**
+     * The [title] of the menu
+     */
+    private val title: String,
+    /**
+     * The [PaginationOptions] for the menu
+     */
+    private val options: PaginationOptions,
+    /**
+     * The [pages] of the menu, with each sub-list being a page
+     */
+    private val pages: List<List<MessageEmbed.Field>>
 ) : Menu {
     private var scheduledFuture: ScheduledFuture<*>? = null
     private var isClosed = false
@@ -124,19 +122,11 @@ class PaginatorMenu(
         } else {
             message = channel.sendMessageEmbeds(embed).complete()
             messageId = message!!.idLong
-            addPotentialEmote(options.startEmoji, options.startUnicode)
-            addPotentialEmote(options.previousEmoji, options.previousUnicode)
-            addPotentialEmote(options.closeEmoji, options.closeUnicode)
-            addPotentialEmote(options.nextEmoji, options.nextUnicode)
-            addPotentialEmote(options.endEmoji, options.endUnicode)
-        }
-    }
-
-    private fun addPotentialEmote(emote: Emoji?, default: UnicodeEmoji) {
-        if (emote != null) {
-            message?.addReaction(emote)?.queue()
-        } else {
-            message?.addReaction(default)?.queue()
+            message?.addReaction(options.startEmoji)?.queue()
+            message?.addReaction(options.previousEmoji)?.queue()
+            message?.addReaction(options.closeEmoji)?.queue()
+            message?.addReaction(options.closeEmoji)?.queue()
+            message?.addReaction(options.endEmoji)?.queue()
         }
     }
 
@@ -145,24 +135,14 @@ class PaginatorMenu(
      */
     override fun handleReaction(reaction: MessageReaction) {
         if (!isClosed) {
-            if (reaction.emoji.type == Emoji.Type.UNICODE) {
-                when (reaction.emoji.asUnicode()) {
-                    options.startUnicode -> startPage()
-                    options.previousUnicode -> previousPage()
-                    options.closeUnicode -> closePage()
-                    options.nextUnicode -> nextPage()
-                    options.endUnicode -> endPage()
-                }
+            when (reaction.emoji) {
+                options.startEmoji -> startPage()
+                options.previousEmoji -> previousPage()
+                options.closeEmoji -> closePage()
+                options.nextEmoji -> nextPage()
+                options.endEmoji -> endPage()
             }
-            if (reaction.emoji.type == Emoji.Type.CUSTOM) {
-                when (reaction.emoji.asCustom()) {
-                    options.startEmoji -> startPage()
-                    options.previousEmoji -> previousPage()
-                    options.closeEmoji -> closePage()
-                    options.nextEmoji -> nextPage()
-                    options.endEmoji -> endPage()
-                }
-            }
+
         }
     }
 
@@ -210,9 +190,9 @@ class PaginatorMenu(
         }
 
         scheduledFuture = message?.editMessage(":x: *This menu has expired* :x:")?.setReplace(true)
-                ?.queueAfter(options.timeoutMs, TimeUnit.MILLISECONDS) {
-                    end()
-                }
+            ?.queueAfter(options.timeoutMs, TimeUnit.MILLISECONDS) {
+                end()
+            }
     }
 
     /**
@@ -229,72 +209,45 @@ class PaginatorMenu(
  */
 class PaginationOptions(
     /**
-         * How many milliseconds should it take to time out the menu?
-         */
-        val timeoutMs: Long,
+     * How many milliseconds should it take to time out the menu?
+     */
+    val timeoutMs: Long,
 
     /**
-         * [nextEmoji] is used when given, instead of [nextUnicode]
-         * The [CustomEmoji] that goes to the next page
-         */
-        val nextEmoji: CustomEmoji? = null,
+     * The [Emoji] that goes to the next page
+     */
+    val nextEmoji: Emoji = Emojis.DEFAULT_NEXT_UNICODE,
 
     /**
-         * [previousEmoji] is used when given, instead of [previousUnicode]
-         * The [CustomEmoji] that goes to the previous page
-         */
-        val previousEmoji: CustomEmoji? = null,
+     * The [Emoji] that goes to the previous page
+     */
+    val previousEmoji: Emoji = Emojis.DEFAULT_PREVIOUS_UNICODE,
 
     /**
-         * [startEmoji] is used when given, instead of [startUnicode]
-         * The [CustomEmoji] that goes to the first page
-         */
-        val startEmoji: CustomEmoji? = null,
+     * The [Emoji] that goes to the first page
+     */
+    val startEmoji: Emoji = Emojis.DEFAULT_START_UNICODE,
 
     /**
-         * [endEmoji] is used when given, instead of [endUnicode]
-         * The [CustomEmoji] that goes to the last page
-         */
-        val endEmoji: CustomEmoji? = null,
+     * The [Emoji] that goes to the last page
+     */
+    val endEmoji: Emoji = Emojis.DEFAULT_END_UNICODE,
 
     /**
-         * [closeEmoji] is used when given, instead of [closeUnicode]
-         * The [CustomEmoji] that closes the menu
-         */
-        val closeEmoji: CustomEmoji? = null,
+     * The [Emoji] that closes the menu
+     */
+    val closeEmoji: Emoji = Emojis.DEFAULT_CLOSE_UNICODE,
 
     /**
-         * [nextEmoji] is used when given, instead of [nextUnicode]
-         * The Emoji that goes to the next page
-         */
-        val nextUnicode: UnicodeEmoji = Emoji.fromUnicode("U+25B6"),
-
-    /**
-         * [previousEmoji] is used when given, instead of [previousUnicode]
-         * The Emoji that goes to the previous page
-         */
-        val previousUnicode: UnicodeEmoji = Emoji.fromUnicode("U+25C0"),
-
-    /**
-         * [startEmoji] is used when given, instead of [startUnicode]
-         * The Emoji that goes to the first page
-         */
-        val startUnicode: UnicodeEmoji = Emoji.fromUnicode("U+23EE"),
-
-    /**
-         * [endEmoji] is used when given, instead of [endUnicode]
-         * The Emoji that goes to the last page
-         */
-        val endUnicode: UnicodeEmoji = Emoji.fromUnicode("U+23ED"),
-
-    /**
-         * [closeEmoji] is used when given, instead of [closeUnicode]
-         * The Emoji that closes the menu
-         */
-        val closeUnicode: UnicodeEmoji = Emoji.fromUnicode("U+274C"),
-
-    /**
-         * The color of the [MessageEmbed]
-         */
-        val embedColor: Int = 0x000000,
+     * The color of the [MessageEmbed]
+     */
+    val embedColor: Int = 0x000000,
 )
+
+object Emojis {
+    val DEFAULT_NEXT_UNICODE = Emoji.fromUnicode("U+25B6")
+    val DEFAULT_PREVIOUS_UNICODE = Emoji.fromUnicode("U+25C0")
+    val DEFAULT_START_UNICODE = Emoji.fromUnicode("U+23EE")
+    val DEFAULT_END_UNICODE = Emoji.fromUnicode("U+23ED")
+    val DEFAULT_CLOSE_UNICODE = Emoji.fromUnicode("U+274C")
+}
