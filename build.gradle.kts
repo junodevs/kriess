@@ -66,12 +66,18 @@ val sourcesJar by tasks.registering(Jar::class) {
 publishing {
     repositories {
         maven {
-            name = "internal.repo"
-            url = uri("$path/../../maven-repo")
+            name = "brettbRepo"
+            url = uri("https://repo.brettb.xyz/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
         }
     }
     publications {
         create<MavenPublication>("maven") {
+            groupId = "tech.junodevs.discord"
+            artifactId = "kriess"
             from(components["java"])
             artifact(tasks["sourcesJar"])
         }
