@@ -49,12 +49,17 @@ object MenuListener : EventListener {
                     menuCheck.second!!.removeReaction(event.reaction.emoji, event.user!!).queue()
                 }
             }
+
             is MessageReactionRemoveEvent -> {
                 checkMenu(event)
             }
         }
     }
 
+    /**
+     * Check the GenericMessageReactionEvent, verify that it is a menu, and whether we should respond.
+     * The pair returned is in the following format <Menu Valid, Menu Message>
+     */
     private fun checkMenu(event: GenericMessageReactionEvent): Pair<Boolean, Message?> {
         val user = event.retrieveUser().complete()
         if (user.isBot) return Pair(false, null)
@@ -76,7 +81,7 @@ object MenuListener : EventListener {
                 menu.handleReaction(event.reaction)
                 menu.bumpTimeout()
             }
-            return Pair(false, msg)
+            return Pair(true, msg)
         }
         return Pair(false, null)
     }
